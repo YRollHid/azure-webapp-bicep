@@ -4,7 +4,17 @@ pool:
   vmImage: ubuntu-latest
 
 jobs:
-  - job: 
-    steps:
-      - script: echo Hello world!
-        displayName: 'Placeholder step'
+- job:
+  steps:
+  
+  - task: AzureCLI@2
+    inputs:
+      azureSubscription: $(ServiceConnectionName)
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        az deployment group create \
+          --name $(Build.BuildNumber) \
+          --resource-group $(ResourceGroupName) \
+          --template-file deploy/main.bicep \
+          --parameters environmentType=$(EnvironmentType) deployToyManualsStorageAccount=$(DeployToyManualsStorageAccount)
