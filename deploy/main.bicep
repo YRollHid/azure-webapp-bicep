@@ -1,88 +1,88 @@
-@description('The Azure region into which the resources should be deployed.')
+@description('The location into which your Azure resources should be deployed.')
 param location string = resourceGroup().location
 
-@description('The type of environment. This must be nonprod or prod.')
+@description('Select the type of environment you want to provision. Allowed values are Production and Test.')
 @allowed([
-  'nonprod'
-  'prod'
+  'Production'
+  'Test'
 ])
 param environmentType string
-
-@description('Indicates whether to deploy the storage account for toy manuals.')
-param deployToyManualsStorageAccount bool
 
 @description('A unique suffix to add to resource names that need to be globally unique.')
 @maxLength(13)
 param resourceNameSuffix string = uniqueString(resourceGroup().id)
 
+param storageAccountNameParam string = uniqueString(resourceGroup().id)
+
+// Define the names for resources.
 var appServiceAppName = 'toy-website-${resourceNameSuffix}'
-var appServicePlanName = 'toy-website-plan'
-var toyManualsStorageAccountName = 'toyweb${resourceNameSuffix}'
+var appServicePlanName = 'toy-website'
+var applicationInsightsName = 'toywebsite'
+var storageAccountName = 'mystorageresourceNameSuffix'
 
 // Define the SKUs for each component based on the environment type.
 var environmentConfigurationMap = {
-  nonprod: {
-    appServiceApp: {
-      alwaysOn: false
-    }
-    appServicePlan: {
-      sku: {
-        name: 'F1'
-        capacity: 1
-      }
-    }
-    toyManualsStorageAccount: {
-      sku: {
-        name: 'Standard_LRS'
-      }
-    }
-  }
-  prod: {
-    appServiceApp: {
-      alwaysOn: true
-    }
+  Production: {
     appServicePlan: {
       sku: {
         name: 'S1'
-        capacity: 2
+        capacity: 1
       }
     }
-    toyManualsStorageAccount: {
+  }
+  Test: {
+    appServicePlan: {
       sku: {
-        name: 'Standard_ZRS'
+        name: 'F1'
       }
     }
   }
 }
-var toyManualsStorageAccountConnectionString = deployToyManualsStorageAccount ? 'DefaultEndpointsProtocol=https;AccountName=${toyManualsStorageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${toyManualsStorageAccount.listKeys().keys[0].value}' : ''
 
-resource appServicePlan 'Microsoft.Web/serverFarms@2020-06-01' = {
+resource appServicePlan 'Microsoft.Web/serverfarms@2021-01-15' = {
   name: appServicePlanName
   location: location
   sku: environmentConfigurationMap[environmentType].appServicePlan.sku
 }
 
-resource appServiceApp 'Microsoft.Web/sites@2020-06-01' = {
+resource appServiceApp 'Microsoft.Web/sites@2021-01-15' = {
   name: appServiceAppName
   location: location
   properties: {
     serverFarmId: appServicePlan.id
-    httpsOnly: true
     siteConfig: {
-      alwaysOn: environmentConfigurationMap[environmentType].appServiceApp.alwaysOn
       appSettings: [
         {
-          name: 'ToyManualsStorageAccountConnectionString'
-          value: toyManualsStorageAccountConnectionString
+          name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
+          value: applicationInsights.properties.InstrumentationKey
+        }
+        {
+          name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
+          value: applicationInsights.properties.ConnectionString
         }
       ]
     }
   }
 }
 
-resource toyManualsStorageAccount 'Microsoft.Storage/storageAccounts@2021-02-01' = if (deployToyManualsStorageAccount) {
-  name: toyManualsStorageAccountName
-  location: resourceGroup().location
-  kind: 'StorageV2'
-  sku: environmentConfigurationMap[environmentType].toyManualsStorageAccount.sku
+resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
+  name: applicationInsightsName
+  location: location
+  kind: 'web'
+  properties: {
+    Application_Type: 'web'
+    Request_Source: 'rest'
+    Flow_Type: 'Bluefield'
+  }
 }
+
+resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+  name: storageAccountName
+  location: location
+  kind: 'StorageV2'
+  sku: {
+    name: 'Standard_LRS'
+  }
+}
+
+output appServiceAppHostName string = appServiceApp.properties.defaultHostName
