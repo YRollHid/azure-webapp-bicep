@@ -8,7 +8,7 @@ parameters:
 
 stages:
 
-- ${{ if ne(parameters.environmentType, 'Production') }}:
+- ${{ if ne(parameters.environmentType, 'toy-webapp-prod') }}:
   - stage: Validate_Env
     displayName: Validate (${{parameters.environmentType}} Environment)
     jobs:
@@ -28,8 +28,8 @@ stages:
                 --template-file deploy/main.bicep \
                 --parameters environmentType=${{parameters.environmentType}}
 
-- ${{ if eq(parameters.environmentType, 'Production') }}:
-  - stage: Preview_Env
+- ${{ if eq(parameters.environmentType, 'toy-webapp-prod') }}:
+  - stage: Preview_${{parameters.environmentName}}
     displayName: Preview (${{parameters.environmentType}} Environment)
     jobs:
     - job: PreviewAzureChanges
@@ -48,7 +48,7 @@ stages:
                 --template-file deploy/main.bicep \
                 --parameters environmentType=${{parameters.environmentType}}
 
-- stage: Deploy_Env
+- stage: Deploy_${{parameters.environmentName}}
   displayName: Deploy (${{parameters.environmentType}} Environment)
   jobs:
   - deployment: DeployWebsite
@@ -76,7 +76,7 @@ stages:
                   appServiceAppHostName=$(echo $deploymentOutput | jq -r '.properties.outputs.appServiceAppHostName.value')
                   echo "##vso[task.setvariable variable=appServiceAppHostName;isOutput=true]$appServiceAppHostName"
 
-- stage: SmokeTest_Env
+- stage: SmokeTest_${{parameters.environmentName}}
   displayName: Smoke Test (${{parameters.environmentType}} Environment)
   jobs:
   - job: SmokeTest

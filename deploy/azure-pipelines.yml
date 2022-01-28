@@ -17,6 +17,7 @@ stages:
 # Deploy to the test environment.
 - template: pipeline-templates/deploy.yml
   parameters:
+    environmentName: NonProd
     environmentType: toy-webapp-non-prod
     resourceGroupName: rg-webapp-nonprod-yrhpwc
     serviceConnectionName: sctoywebappnonprodbicep
@@ -24,6 +25,7 @@ stages:
 # Deploy to the production environment.
 - template: pipeline-templates/deploy.yml
   parameters:
+    environmentName: Prod
     environmentType: toy-webapp-prod
     resourceGroupName: rg-webapp-prod-yrhpwc
     serviceConnectionName: sctoywebappprodbicep
