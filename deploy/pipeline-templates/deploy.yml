@@ -11,7 +11,7 @@ parameters:
 stages:
 
 - ${{ if ne(parameters.environmentType, 'toy-webapp-prod') }}:
-  - stage: Validate_Env
+  - stage: Validate_${{parameters.environmentName}}
     displayName: Validate (${{parameters.environmentType}} Environment)
     jobs:
     - job: ValidateBicepCode
