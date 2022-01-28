@@ -1,7 +1,7 @@
 @description('The location into which your Azure resources should be deployed.')
 param location string = resourceGroup().location
 
-@description('Select the type of environment you want to provision. Allowed values are Production and Test.')
+@description('Select the type of environment you want to provision. Allowed values are toy-webapp-non-prod and toy-webapp-prod.')
 @allowed([
   'toy-webapp-non-prod'
   'toy-webapp-prod'
@@ -21,7 +21,7 @@ var storageAccountName = 'mystorage${resourceNameSuffix}'
 
 // Define the SKUs for each component based on the environment type.
 var environmentConfigurationMap = {
-  Production: {
+  'toy-webapp-prod': {
     appServicePlan: {
       sku: {
         name: 'S1'
@@ -29,7 +29,7 @@ var environmentConfigurationMap = {
       }
     }
   }
-  Test: {
+  'toy-webapp-non-prod': {
     appServicePlan: {
       sku: {
         name: 'F1'
