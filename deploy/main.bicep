@@ -3,8 +3,8 @@ param location string = resourceGroup().location
 
 @description('Select the type of environment you want to provision. Allowed values are Production and Test.')
 @allowed([
-  'Production'
-  'Test'
+  'toy-webapp-non-prod'
+  'toy-webapp-prod'
 ])
 param environmentType string
 
