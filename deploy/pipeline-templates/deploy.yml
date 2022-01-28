@@ -1,4 +1,6 @@
 parameters:
+- name: environmentName
+  type: string
 - name: environmentType
   type: string
 - name: resourceGroupName
