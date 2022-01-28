@@ -9,7 +9,7 @@ parameters:
 stages:
 
 - ${{ if ne(parameters.environmentType, 'Production') }}:
-  - stage: Validate_${{parameters.environmentType}}
+  - stage: Validate_Env
     displayName: Validate (${{parameters.environmentType}} Environment)
     jobs:
     - job: ValidateBicepCode
@@ -29,7 +29,7 @@ stages:
                 --parameters environmentType=${{parameters.environmentType}}
 
 - ${{ if eq(parameters.environmentType, 'Production') }}:
-  - stage: Preview_${{parameters.environmentType}}
+  - stage: Preview_Env
     displayName: Preview (${{parameters.environmentType}} Environment)
     jobs:
     - job: PreviewAzureChanges
@@ -48,7 +48,7 @@ stages:
                 --template-file deploy/main.bicep \
                 --parameters environmentType=${{parameters.environmentType}}
 
-- stage: Deploy_${{parameters.environmentType}}
+- stage: Deploy_Env
   displayName: Deploy (${{parameters.environmentType}} Environment)
   jobs:
   - deployment: DeployWebsite
@@ -76,7 +76,7 @@ stages:
                   appServiceAppHostName=$(echo $deploymentOutput | jq -r '.properties.outputs.appServiceAppHostName.value')
                   echo "##vso[task.setvariable variable=appServiceAppHostName;isOutput=true]$appServiceAppHostName"
 
-- stage: SmokeTest_${{parameters.environmentType}}
+- stage: SmokeTest_Env
   displayName: Smoke Test (${{parameters.environmentType}} Environment)
   jobs:
   - job: SmokeTest
