@@ -92,7 +92,7 @@ stages:
                     --template-file deploy/main.bicep \
                     --parameters environmentType=$(EnvironmentType) \
                              reviewApiUrl=$(ReviewApiUrl) \
-                             reviewApiKey=$(ReviewApiKey)) \
+                             reviewApiKey=$(ReviewApiKey) \
                              sqlServerAdministratorLogin=$(SqlServerAdministratorLogin) \
                              sqlServerAdministratorLoginPassword=$(SqlServerAdministratorLoginPassword))
                   appServiceAppName=$(echo $deploymentOutput | jq -r '.properties.outputs.appServiceAppName.value')
