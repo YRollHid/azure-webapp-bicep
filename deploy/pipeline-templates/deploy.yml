@@ -63,6 +63,8 @@ stages:
   jobs:
   - deployment: DeployWebsite
     displayName: Deploy website
+    pool:
+      vmImage: windows-latest
     variables:
     - group: ${{parameters.environmentType}}
     environment: ${{parameters.environmentType}}
@@ -87,8 +89,21 @@ stages:
                     --parameters environmentType=$(EnvironmentType) \
                              reviewApiUrl=$(ReviewApiUrl) \
                              reviewApiKey=$(ReviewApiKey))
+                  appServiceAppName=$(echo $deploymentOutput | jq -r '.properties.outputs.appServiceAppName.value')
                   appServiceAppHostName=$(echo $deploymentOutput | jq -r '.properties.outputs.appServiceAppHostName.value')
+                  echo "##vso[task.setvariable variable=appServiceAppName]$appServiceAppName"
                   echo "##vso[task.setvariable variable=appServiceAppHostName;isOutput=true]$appServiceAppHostName"
+
+            - task: AzureRmWebAppDeployment@4
+              name: DeployWebsiteApp
+              displayName: Deploy website
+              inputs:
+                appType: webApp
+                ConnectionType: AzureRM
+                azureSubscription: ${{parameters.serviceConnectionName}}
+                ResourceGroupName: $(ResourceGroupName)
+                WebAppName: $(appServiceAppName)
+                Package: '$(Pipeline.Workspace)/website/publish.zip'
 
 - stage: SmokeTest_${{parameters.environmentName}}
   displayName: Smoke Test (${{parameters.environmentType}} Environment)
