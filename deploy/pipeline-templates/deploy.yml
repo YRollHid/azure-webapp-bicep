@@ -138,7 +138,7 @@ stages:
                 name: AddTestDataToDatabase
                 displayName: Add test data to database
                 inputs:
-                  ConnectedServiceNameARM: ToyWebsite${{parameters.environmentType}}
+                  ConnectedServiceNameARM: ${{parameters.serviceConnectionName}}
                   authenticationType: 'server'
                   serverName: $(sqlServerFullyQualifiedDomainName)
                   databaseName: $(sqlDatabaseName)
@@ -151,7 +151,7 @@ stages:
                 name: UploadSampleImages
                 displayName: Upload sample images
                 inputs:
-                  azureSubscription: ToyWebsite${{parameters.environmentType}}
+                  azureSubscription: ${{parameters.serviceConnectionName}}
                   scriptType: 'bash'
                   scriptLocation: 'inlineScript'
                   inlineScript: |
