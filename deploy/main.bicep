@@ -34,6 +34,7 @@ var storageAccountName = 'mystorage${resourceNameSuffix}'
 var storageAccountImagesBlobContainerName = 'toyimages'
 var sqlServerName = 'toy-website-${resourceNameSuffix}'
 var sqlDatabaseName = 'Toys'
+
 // Define the connection string to access Azure SQL.
 var sqlDatabaseConnectionString = 'Server=tcp:${sqlServer.properties.fullyQualifiedDomainName},1433;Initial Catalog=${sqlDatabase.name};Persist Security Info=False;User ID=${sqlServerAdministratorLogin};Password=${sqlServerAdministratorLoginPassword};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;'
 
@@ -151,7 +152,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   }
 }
 
-resource sqlServer 'Microsoft.Sql/servers@2021-05-01-preview' = {
+resource sqlServer 'Microsoft.Sql/servers@2021-02-01-preview' = {
   name: sqlServerName
   location: location
   properties: {
@@ -160,7 +161,7 @@ resource sqlServer 'Microsoft.Sql/servers@2021-05-01-preview' = {
   }
 }
 
-resource sqlServerFirewallRule 'Microsoft.Sql/servers/firewallRules@2021-05-01-preview' = {
+resource sqlServerFirewallRule 'Microsoft.Sql/servers/firewallRules@2021-02-01-preview' = {
   parent: sqlServer
   name: 'AllowAllWindowsAzureIps'
   properties: {
@@ -169,7 +170,7 @@ resource sqlServerFirewallRule 'Microsoft.Sql/servers/firewallRules@2021-05-01-p
   }
 }
 
-resource sqlDatabase 'Microsoft.Sql/servers/databases@2021-05-01-preview' = {
+resource sqlDatabase 'Microsoft.Sql/servers/databases@2021-02-01-preview' = {
   parent: sqlServer
   name: sqlDatabaseName
   location: location
