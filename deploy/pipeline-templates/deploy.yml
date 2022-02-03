@@ -60,7 +60,7 @@ stages:
                              reviewApiUrl=$(ReviewApiUrl) \
                              reviewApiKey=$(ReviewApiKey) \
                              sqlServerAdministratorLogin=$(SqlServerAdministratorLogin) \
-                             sqlServerAdministratorLoginPassword=$(SqlServerAdministratorLoginPasswor
+                             sqlServerAdministratorLoginPassword=$(SqlServerAdministratorLoginPassword)
 
 - stage: Deploy_${{parameters.environmentName}}
   displayName: Deploy (${{parameters.environmentType}} Environment)
