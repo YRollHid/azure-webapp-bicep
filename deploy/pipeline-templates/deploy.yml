@@ -1,12 +1,12 @@
 parameters:
-- name: environmentName
-  type: string
-- name: environmentType
-  type: string
-- name: resourceGroupName
-  type: string
-- name: serviceConnectionName
-  type: string
+ - name: environmentType
+   type: string
+ - name: environmentName
+   type: string
+# - name: resourceGroupName
+#   type: string
+ - name: serviceConnectionName
+   type: string
 
 stages:
 
@@ -16,6 +16,8 @@ stages:
     jobs:
     - job: ValidateBicepCode
       displayName: Validate Bicep code
+      variables:
+      - group: ${{parameters.environmentType}}
       steps:
         - task: AzureCLI@2
           name: RunPreflightValidation
@@ -26,9 +28,9 @@ stages:
             scriptLocation: 'inlineScript'
             inlineScript: |
               az deployment group validate \
-                --resource-group ${{parameters.resourceGroupName}} \
+                --resource-group $(ResourceGroupName) \
                 --template-file deploy/main.bicep \
-                --parameters environmentType=${{parameters.environmentType}}
+                --parameters environmentType=$(EnvironmentType)
 
 - ${{ if eq(parameters.environmentType, 'toy-webapp-prod') }}:
   - stage: Preview_${{parameters.environmentName}}
@@ -36,6 +38,8 @@ stages:
     jobs:
     - job: PreviewAzureChanges
       displayName: Preview Azure changes
+      variables:
+      - group: ${{parameters.environmentType}}
       steps:
         - task: AzureCLI@2
           name: RunWhatIf
@@ -46,15 +50,17 @@ stages:
             scriptLocation: 'inlineScript'
             inlineScript: |
               az deployment group what-if \
-                --resource-group ${{parameters.resourceGroupName}} \
+                --resource-group $(ResourceGroupName) \
                 --template-file deploy/main.bicep \
-                --parameters environmentType=${{parameters.environmentType}}
+                --parameters environmentType=$(EnvironmentType)
 
 - stage: Deploy_${{parameters.environmentName}}
   displayName: Deploy (${{parameters.environmentType}} Environment)
   jobs:
   - deployment: DeployWebsite
     displayName: Deploy website
+    variables:
+    - group: ${{parameters.environmentType}}
     environment: ${{parameters.environmentType}}
     strategy:
       runOnce:
@@ -72,9 +78,9 @@ stages:
                   set -e
                   deploymentOutput=$(az deployment group create \
                     --name $(Build.BuildNumber) \
-                    --resource-group ${{parameters.resourceGroupName}} \
+                    --resource-group $(ResourceGroupName) \
                     --template-file deploy/main.bicep \
-                    --parameters environmentType=${{parameters.environmentType}})
+                    --parameters environmentType=$(EnvironmentType))
                   appServiceAppHostName=$(echo $deploymentOutput | jq -r '.properties.outputs.appServiceAppHostName.value')
                   echo "##vso[task.setvariable variable=appServiceAppHostName;isOutput=true]$appServiceAppHostName"
 

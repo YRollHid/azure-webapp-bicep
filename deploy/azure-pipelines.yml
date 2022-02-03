@@ -19,7 +19,7 @@ stages:
   parameters:
     environmentName: NonProd
     environmentType: toy-webapp-non-prod
-    resourceGroupName: rg-webapp-nonprod-yrhpwc
+    #resourceGroupName: rg-webapp-nonprod-yrhpwc
     serviceConnectionName: sctoywebappnonprodbicep
 
 # Deploy to the production environment.
@@ -27,5 +27,5 @@ stages:
   parameters:
     environmentName: Prod
     environmentType: toy-webapp-prod
-    resourceGroupName: rg-webapp-prod-yrhpwc
+    #resourceGroupName: rg-webapp-prod-yrhpwc
     serviceConnectionName: sctoywebappprodbicep
